@@ -15,6 +15,7 @@ function App() {
     const [loading, setLoading] = useState(true); // 加载状态
     const [error, setError] = useState(''); // 错误信息
     const [editingKey, setEditingKey] = useState(''); // 正在编辑的行的 key
+    const [originalWords, setOriginalWords] = useState([]); // 存储原始的单词数组
 
     const isEditing = (record) => record.Id === editingKey;
 
@@ -88,7 +89,16 @@ function App() {
         }
         const randomIndex = Math.floor(Math.random() * wordsArray.length);
         setBlankIndex(randomIndex);
-        setWords(wordsArray);
+
+        // 打乱单词顺序
+        const shuffledWords = [...wordsArray];
+        for (let i = shuffledWords.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
+        }
+        setWords(shuffledWords);
+        setOriginalWords(wordsArray); // 存储原始的单词数组
+
         setUserChoice('');
         setMessageText('');
     };
@@ -96,7 +106,7 @@ function App() {
     // 处理用户选择
     const handleChoice = (word) => {
         setUserChoice(word);
-        if (word === words[blankIndex]) {
+        if (word === originalWords[blankIndex]) { // 使用原始的单词数组来判断是否正确
             setMessageText('Correct! 🎉');
         } else {
             setMessageText('Incorrect, try again! ❌');
@@ -145,7 +155,7 @@ function App() {
         setSentenceToSave(sentence.Content); // 将句子转移到保存句子的文本框
     };
 
-    // 再次修改函数名，确保不以 use 开头
+    // 修改函数名，避免与 Hook 命名混淆
     const putSentenceInPractice = (sentence) => {
         setText(sentence.Content);
         setActiveTab('practice');
@@ -212,9 +222,8 @@ function App() {
                         >
                             删除
                         </Button>
-                        {/* 修改函数调用 */}
                         <Button onClick={() => putSentenceInPractice(record)} style={{ marginLeft: 8 }}>
-                            练习
+                            用于练习
                         </Button>
                     </span>
                 );
